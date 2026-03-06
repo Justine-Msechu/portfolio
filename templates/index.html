@@ -470,7 +470,7 @@
       progressLabel.textContent = 'Sending to AWS S3 via server...';
 
       // Step 2: Send base64 to Flask — Flask uploads to S3
-      const res = await fetch('/api/upload-photo', {
+      const res = await fetch('/flask/upload-photo', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({ data: base64, type: selectedFile.type })
@@ -486,12 +486,38 @@
       if (!res.ok) throw new Error(resData.error || 'Upload failed');
 
       progressBar.style.width = '100%';
-      progressLabel.textContent = '✅ Uploaded to AWS S3!';
+      progressLabel.textContent = '✅ Uploaded! Saving to profile...';
 
+      // Set the URL in the input
       document.getElementById('p-photo').value = resData.url;
       previewPhoto(resData.url);
-      status.textContent = '✅ Photo uploaded — click Save All Changes';
       btn.textContent = '✅ Uploaded';
+
+      // Auto-save the profile so the photo appears immediately for everyone
+      const saveRes = await fetch('/flask/profile', {
+        method: 'PUT',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+          name:      document.getElementById('p-name').value,
+          title:     document.getElementById('p-title').value,
+          bio:       document.getElementById('p-bio').value,
+          email:     document.getElementById('p-email').value,
+          github:    document.getElementById('p-github').value,
+          linkedin:  document.getElementById('p-linkedin').value,
+          location:  document.getElementById('p-location').value,
+          photo_url: resData.url,
+        })
+      });
+
+      if (saveRes.ok) {
+        progressLabel.textContent = '✅ Photo saved to your profile!';
+        status.textContent = '✅ Live now — visible to everyone';
+        showToast('Profile photo updated! Reloading...');
+        setTimeout(() => location.reload(), 1800);
+      } else {
+        progressLabel.textContent = '✅ Uploaded — click Save All Changes to finish';
+        status.textContent = '⚠️ Upload done but not saved yet — click Save All Changes';
+      }
 
     } catch (err) {
       progressBar.style.width = '0%';
@@ -512,7 +538,7 @@
 
   // ── SAVE PROFILE ──
   async function saveProfile(){
-    const res=await fetch('/api/profile',{
+    const res=await fetch('/flask/profile',{
       method:'PUT', headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
         name:document.getElementById('p-name').value,
@@ -532,7 +558,7 @@
   // ── ADD PROJECT ──
   async function addProject(){
     const stack=document.getElementById('proj-stack').value.split(',').map(s=>s.trim()).filter(Boolean);
-    const res=await fetch('/api/projects',{
+    const res=await fetch('/flask/projects',{
       method:'POST', headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
         title:document.getElementById('proj-title').value,

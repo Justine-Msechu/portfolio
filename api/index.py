@@ -47,9 +47,11 @@ def upload_to_s3(file_bytes, key, content_type,
     # Hash the file bytes
     payload_hash = hashlib.sha256(file_bytes).hexdigest()
 
-    # Canonical request
-    headers_to_sign = f"content-type:{content_type}\nhost:{host}\nx-amz-content-sha256:{payload_hash}\nx-amz-date:{datetime_str}\n"
-    signed_headers  = "content-type;host;x-amz-content-sha256;x-amz-date"
+    # Canonical request — include x-amz-acl so object is publicly readable
+    headers_to_sign = (f"content-type:{content_type}\nhost:{host}\n"
+                       f"x-amz-acl:public-read\n"
+                       f"x-amz-content-sha256:{payload_hash}\nx-amz-date:{datetime_str}\n")
+    signed_headers  = "content-type;host;x-amz-acl;x-amz-content-sha256;x-amz-date"
     canonical = "\n".join(["PUT",
                            "/" + urllib.parse.quote(key, safe="/"),
                            "",
@@ -74,6 +76,7 @@ def upload_to_s3(file_bytes, key, content_type,
     req.add_header("Content-Type",           content_type)
     req.add_header("x-amz-date",             datetime_str)
     req.add_header("x-amz-content-sha256",   payload_hash)
+    req.add_header("x-amz-acl",              "public-read")
     req.add_header("Content-Length",         str(len(file_bytes)))
 
     with urllib.request.urlopen(req, timeout=20) as resp:
@@ -162,7 +165,7 @@ def index():
     except Exception as e:
         return f"<h2>Error</h2><pre>{e}</pre>", 500
 
-@app.route("/api/projects", methods=["GET"])
+@app.route("/flask/projects", methods=["GET"])
 def get_projects():
     conn = get_db(); cur = conn.cursor()
     cur.execute("SELECT * FROM projects ORDER BY featured DESC, created_at DESC")
@@ -172,7 +175,7 @@ def get_projects():
     cur.close(); conn.close()
     return jsonify(rows)
 
-@app.route("/api/projects", methods=["POST"])
+@app.route("/flask/projects", methods=["POST"])
 def create_project():
     d = request.get_json()
     conn = get_db(); cur = conn.cursor()
@@ -185,14 +188,14 @@ def create_project():
     conn.commit(); cur.close(); conn.close()
     return jsonify({"id": nid}), 201
 
-@app.route("/api/projects/<int:pid>", methods=["DELETE"])
+@app.route("/flask/projects/<int:pid>", methods=["DELETE"])
 def delete_project(pid):
     conn = get_db(); cur = conn.cursor()
     cur.execute("DELETE FROM projects WHERE id=%s", (pid,))
     conn.commit(); cur.close(); conn.close()
     return jsonify({"message": "Deleted"})
 
-@app.route("/api/profile", methods=["GET"])
+@app.route("/flask/profile", methods=["GET"])
 def get_profile():
     conn = get_db(); cur = conn.cursor()
     cur.execute("SELECT * FROM profile WHERE id=1")
@@ -200,7 +203,7 @@ def get_profile():
     cur.close(); conn.close()
     return jsonify(dict(row) if row else {})
 
-@app.route("/api/profile", methods=["PUT"])
+@app.route("/flask/profile", methods=["PUT"])
 def update_profile():
     d = request.get_json()
     conn = get_db(); cur = conn.cursor()
@@ -217,7 +220,7 @@ def update_profile():
     conn.commit(); cur.close(); conn.close()
     return jsonify({"message": "Updated"})
 
-@app.route("/api/upload-photo", methods=["POST"])
+@app.route("/flask/upload-photo", methods=["POST"])
 def upload_photo():
     """
     Receive a photo from the browser as base64 JSON,
@@ -268,7 +271,7 @@ def upload_photo():
         return jsonify({"error": str(e)}), 500
 
 
-@app.route("/api/debug-aws")
+@app.route("/flask/debug-aws")
 def debug_aws():
     """Open yoursite.vercel.app/api/debug-aws in your browser to check env vars."""
     return jsonify({
@@ -278,7 +281,7 @@ def debug_aws():
         "AWS_REGION":            os.environ.get("AWS_REGION",      "using default: us-east-1"),
     })
 
-@app.route("/api/health")
+@app.route("/flask/health")
 def health():
     return jsonify({"status": "ok"})
 
