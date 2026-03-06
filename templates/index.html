@@ -434,49 +434,63 @@
 
   async function uploadToS3() {
     if (!selectedFile) return;
-    const btn = document.getElementById('upload-btn');
-    const status = document.getElementById('upload-status');
+    const btn          = document.getElementById('upload-btn');
+    const status       = document.getElementById('upload-status');
     const progressWrap = document.getElementById('upload-progress-wrap');
     const progressBar  = document.getElementById('upload-progress-bar');
     const progressLabel= document.getElementById('upload-progress-label');
 
+    // Check file size before sending (4MB limit)
+    if (selectedFile.size > 4 * 1024 * 1024) {
+      progressWrap.style.display = 'block';
+      progressBar.style.width = '0%';
+      progressLabel.style.color = '#f87171';
+      progressLabel.textContent = '❌ Photo is too large. Please use a photo under 4MB.';
+      return;
+    }
+
     btn.disabled = true;
-    btn.textContent = 'Uploading...';
+    btn.textContent = 'Reading photo...';
     progressWrap.style.display = 'block';
-    progressBar.style.width = '20%';
-    progressLabel.textContent = 'Getting upload URL from AWS...';
+    progressBar.style.width = '15%';
+    progressLabel.style.color = 'var(--teal)';
+    progressLabel.textContent = 'Reading photo file...';
 
     try {
-      const urlRes = await fetch('/api/upload-url', {
+      // Step 1: Read file as base64 in the browser
+      const base64 = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload  = e => resolve(e.target.result); // includes "data:image/jpeg;base64,..."
+        reader.onerror = () => reject(new Error('Could not read file'));
+        reader.readAsDataURL(selectedFile);
+      });
+
+      progressBar.style.width = '40%';
+      btn.textContent = 'Uploading to S3...';
+      progressLabel.textContent = 'Sending to AWS S3 via server...';
+
+      // Step 2: Send base64 to Flask — Flask uploads to S3
+      const res = await fetch('/api/upload-photo', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({ file_type: selectedFile.type })
+        body: JSON.stringify({ data: base64, type: selectedFile.type })
       });
 
       let resData;
-      try { resData = await urlRes.json(); }
-      catch(e) { throw new Error('Server error — check Vercel logs for details'); }
+      try {
+        resData = await res.json();
+      } catch(e) {
+        throw new Error('Server returned an unexpected response. Check Vercel → Logs.');
+      }
 
-      if (!urlRes.ok) throw new Error(resData.error || 'Failed to get upload URL');
-
-      const { upload_url, public_url } = resData;
-      progressBar.style.width = '50%';
-      progressLabel.textContent = 'Uploading photo to AWS S3...';
-
-      const uploadRes = await fetch(upload_url, {
-        method: 'PUT',
-        headers: {'Content-Type': selectedFile.type},
-        body: selectedFile
-      });
-
-      if (!uploadRes.ok) throw new Error('S3 upload rejected — check bucket CORS and policy');
+      if (!res.ok) throw new Error(resData.error || 'Upload failed');
 
       progressBar.style.width = '100%';
-      progressLabel.textContent = '✅ Uploaded successfully!';
+      progressLabel.textContent = '✅ Uploaded to AWS S3!';
 
-      document.getElementById('p-photo').value = public_url;
-      previewPhoto(public_url);
-      status.textContent = '✅ Ready — click Save All Changes';
+      document.getElementById('p-photo').value = resData.url;
+      previewPhoto(resData.url);
+      status.textContent = '✅ Photo uploaded — click Save All Changes';
       btn.textContent = '✅ Uploaded';
 
     } catch (err) {
