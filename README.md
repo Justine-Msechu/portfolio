@@ -1,6 +1,8 @@
+The aim of this project is to test free trial cloud services such as AWS, Vercel, and Neon. I created this portfolio project with a database hosted on Neon, and it also uses the S3 feature from AWS to store profile pictures. Here is the structure.
+
 # Portfolio  Flask + Neon + Vercel
 
-A beautiful, database-powered developer portfolio built with Python Flask, PostgreSQL (Neon), and deployed for **free** on Vercel.
+A beautiful, databasepowered developer portfolio built with Python Flask, PostgreSQL (Neon), and deployed for **free** on Vercel.
 
 ---
 
@@ -30,7 +32,7 @@ portfolio/
 
 ---
 
-## 🛠️ Deployment Guide (Step by Step)
+## Deployment Guide (Step by Step)
 
 ### Step 1 Get a Free Neon Database
 
@@ -122,7 +124,7 @@ Edit `templates/index.html` — the CSS variables at the top control the whole t
 
 ---
 
-## 🔌 API Endpoints
+##  API Endpoints
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
@@ -137,7 +139,7 @@ Edit `templates/index.html` — the CSS variables at the top control the whole t
 
 ---
 
-## 🔄 Auto-Redeployment
+## Auto-Redeployment
 
 Every time you push to GitHub, Vercel will **automatically redeploy** your site. No manual steps needed.
 
