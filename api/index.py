@@ -47,11 +47,10 @@ def upload_to_s3(file_bytes, key, content_type,
     # Hash the file bytes
     payload_hash = hashlib.sha256(file_bytes).hexdigest()
 
-    # Canonical request — include x-amz-acl so object is publicly readable
+    # Canonical request — no ACL header (modern S3 buckets use bucket policy for public access)
     headers_to_sign = (f"content-type:{content_type}\nhost:{host}\n"
-                       f"x-amz-acl:public-read\n"
                        f"x-amz-content-sha256:{payload_hash}\nx-amz-date:{datetime_str}\n")
-    signed_headers  = "content-type;host;x-amz-acl;x-amz-content-sha256;x-amz-date"
+    signed_headers  = "content-type;host;x-amz-content-sha256;x-amz-date"
     canonical = "\n".join(["PUT",
                            "/" + urllib.parse.quote(key, safe="/"),
                            "",
@@ -76,7 +75,6 @@ def upload_to_s3(file_bytes, key, content_type,
     req.add_header("Content-Type",           content_type)
     req.add_header("x-amz-date",             datetime_str)
     req.add_header("x-amz-content-sha256",   payload_hash)
-    req.add_header("x-amz-acl",              "public-read")
     req.add_header("Content-Length",         str(len(file_bytes)))
 
     with urllib.request.urlopen(req, timeout=20) as resp:
