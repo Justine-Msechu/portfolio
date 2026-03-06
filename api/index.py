@@ -1,4 +1,7 @@
-import os
+mport os
+import uuid
+import boto3
+from botocore.exceptions import ClientError
 from flask import Flask, request, jsonify, render_template
 import psycopg2
 from psycopg2.extras import RealDictCursor
@@ -177,6 +180,47 @@ def update_profile():
           data.get('location'), data.get('photo_url', '')))
     conn.commit(); cur.close(); conn.close()
     return jsonify({"message": "Updated"})
+
+@app.route("/api/upload-url", methods=["POST"])
+def get_upload_url():
+    """
+    Returns a presigned S3 URL so the browser can upload
+    a photo directly to S3 without going through Vercel.
+    """
+    aws_key    = os.environ.get("AWS_ACCESS_KEY_ID")
+    aws_secret = os.environ.get("AWS_SECRET_ACCESS_KEY")
+    aws_bucket = os.environ.get("AWS_BUCKET_NAME")
+    aws_region = os.environ.get("AWS_REGION", "us-east-1")
+
+    if not all([aws_key, aws_secret, aws_bucket]):
+        return jsonify({"error": "AWS credentials not configured"}), 500
+
+    data = request.get_json()
+    file_type = data.get("file_type", "image/jpeg")
+    ext = file_type.split("/")[-1].replace("jpeg", "jpg")
+    file_key = f"profile-photos/{uuid.uuid4()}.{ext}"
+
+    try:
+        s3 = boto3.client(
+            "s3",
+            region_name=aws_region,
+            aws_access_key_id=aws_key,
+            aws_secret_access_key=aws_secret,
+        )
+        presigned = s3.generate_presigned_url(
+            "put_object",
+            Params={
+                "Bucket": aws_bucket,
+                "Key": file_key,
+                "ContentType": file_type,
+            },
+            ExpiresIn=300,   # URL valid for 5 minutes
+        )
+        public_url = f"https://{aws_bucket}.s3.{aws_region}.amazonaws.com/{file_key}"
+        return jsonify({"upload_url": presigned, "public_url": public_url})
+    except ClientError as e:
+        return jsonify({"error": str(e)}), 500
+
 
 @app.route("/api/health")
 def health():

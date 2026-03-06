@@ -319,7 +319,7 @@
   <div class="admin-form">
     <h3 class="admin-subtitle">📸 Profile Picture</h3>
 
-    <!-- Photo preview + URL input -->
+    <!-- AWS S3 Photo Upload -->
     <div class="photo-upload-area">
       <div class="photo-preview-wrap">
         <div style="position:relative;flex-shrink:0;">
@@ -334,25 +334,40 @@
         </div>
         <div style="flex:1;text-align:left;">
           <div style="font-size:.9rem;font-weight:600;color:#fff;margin-bottom:.4rem;">Your Profile Photo</div>
-          <div style="font-size:.8rem;color:rgba(255,255,255,.4);line-height:1.5;">Paste a direct image link below.<br>Appears in the nav bar and profile card.</div>
+          <div style="font-size:.78rem;color:rgba(255,255,255,.4);line-height:1.6;">
+            Stored on <strong style="color:#f59e0b;">AWS S3</strong> — free cloud storage.<br>
+            Pick a photo from your device and click Upload.
+          </div>
         </div>
       </div>
 
-      <div class="form-group" style="margin-bottom:.5rem;">
-        <label>Photo URL (direct image link)</label>
+      <input type="file" id="photo-file-input" accept="image/jpeg,image/png,image/webp,image/gif" style="display:none" onchange="handleFileSelect(this)"/>
+      <div style="display:flex;gap:.8rem;align-items:center;flex-wrap:wrap;margin-bottom:.8rem;">
+        <button class="btn btn-secondary" style="padding:.6rem 1.2rem;font-size:.8rem;" type="button"
+                onclick="document.getElementById('photo-file-input').click()">
+          📁 Choose Photo
+        </button>
+        <button class="btn btn-primary" id="upload-btn" style="padding:.6rem 1.2rem;font-size:.8rem;display:none;" type="button"
+                onclick="uploadToS3()">
+          ☁️ Upload to AWS S3
+        </button>
+        <span id="upload-status" style="font-size:.78rem;color:rgba(255,255,255,.5);"></span>
+      </div>
+
+      <div id="upload-progress-wrap" style="display:none;margin-bottom:.8rem;">
+        <div style="height:4px;background:rgba(255,255,255,.1);border-radius:2px;overflow:hidden;">
+          <div id="upload-progress-bar" style="height:100%;background:var(--teal);width:0%;transition:width .3s;border-radius:2px;"></div>
+        </div>
+        <div id="upload-progress-label" style="font-size:.7rem;color:var(--teal);margin-top:.3rem;font-family:'Space Mono',monospace;"></div>
+      </div>
+
+      <div class="form-group" style="margin-bottom:.3rem;">
+        <label>Or paste an image URL directly</label>
         <input id="p-photo" type="url"
                value="{{ profile.photo_url or '' }}"
-               placeholder="https://i.imgur.com/yourphoto.jpg"
+               placeholder="https://your-bucket.s3.amazonaws.com/photo.jpg"
                oninput="previewPhoto(this.value)"/>
       </div>
-    </div>
-
-    <div class="photo-tips">
-      <strong style="color:rgba(255,255,255,.6);">How to get a free photo URL:</strong><br>
-      1. Go to <a href="https://imgur.com" target="_blank" class="photo-tip-link">imgur.com</a> → click "New post" → upload your photo<br>
-      2. Right-click the uploaded photo → "Copy image address"<br>
-      3. Paste that link in the box above<br><br>
-      Or use <a href="https://postimages.org" target="_blank" class="photo-tip-link">postimages.org</a> → upload → copy "Direct link"
     </div>
 
     <h3 class="admin-subtitle" style="margin-top:2rem;">Edit Profile</h3>
@@ -381,45 +396,111 @@
 <div class="toast" id="toast"></div>
 
 <script>
-  // Fade-in
+  // Fade-in observer
   const obs=new IntersectionObserver(e=>e.forEach(el=>{if(el.isIntersecting)el.target.classList.add('visible');}),{threshold:.1});
   document.querySelectorAll('.fade-in').forEach(el=>obs.observe(el));
 
-  // Skill bars
+  // Skill bar observer
   const barObs=new IntersectionObserver(e=>{
     e.forEach(el=>{if(el.isIntersecting)el.target.querySelectorAll('.skill-fill').forEach(b=>b.style.width=b.dataset.width);});
   },{threshold:.2});
   document.querySelectorAll('.skill-group-card').forEach(el=>barObs.observe(el));
 
-  // Photo live preview
+  // ── PHOTO PREVIEW ──
   function previewPhoto(url) {
     const img = document.getElementById('photo-preview-img');
-    const placeholder = document.getElementById('photo-preview-placeholder');
+    const ph  = document.getElementById('photo-preview-placeholder');
     if (url) {
-      img.src = url;
-      img.style.display = 'block';
-      placeholder.style.display = 'none';
-      img.onerror = () => {
-        img.style.display = 'none';
-        placeholder.style.display = 'flex';
-      };
-    } else {
-      img.style.display = 'none';
-      placeholder.style.display = 'flex';
+      img.src = url; img.style.display='block'; ph.style.display='none';
+      img.onerror = ()=>{ img.style.display='none'; ph.style.display='flex'; };
+    } else { img.style.display='none'; ph.style.display='flex'; }
+  }
+
+  // ── S3 UPLOAD ──
+  let selectedFile = null;
+
+  function handleFileSelect(input) {
+    const file = input.files[0];
+    if (!file) return;
+    // Show local preview immediately
+    const reader = new FileReader();
+    reader.onload = e => previewPhoto(e.target.result);
+    reader.readAsDataURL(file);
+    // Show file name + upload button
+    selectedFile = file;
+    document.getElementById('upload-status').textContent = file.name + ' (' + (file.size/1024).toFixed(0) + ' KB)';
+    document.getElementById('upload-btn').style.display = 'inline-flex';
+  }
+
+  async function uploadToS3() {
+    if (!selectedFile) return;
+    const btn = document.getElementById('upload-btn');
+    const status = document.getElementById('upload-status');
+    const progressWrap = document.getElementById('upload-progress-wrap');
+    const progressBar  = document.getElementById('upload-progress-bar');
+    const progressLabel= document.getElementById('upload-progress-label');
+
+    btn.disabled = true;
+    btn.textContent = 'Uploading...';
+    progressWrap.style.display = 'block';
+    progressBar.style.width = '20%';
+    progressLabel.textContent = 'Getting upload URL from AWS...';
+
+    try {
+      // Step 1: Ask our Flask backend for a presigned S3 URL
+      const urlRes = await fetch('/api/upload-url', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ file_type: selectedFile.type })
+      });
+
+      if (!urlRes.ok) {
+        const err = await urlRes.json();
+        throw new Error(err.error || 'Failed to get upload URL');
+      }
+
+      const { upload_url, public_url } = await urlRes.json();
+      progressBar.style.width = '50%';
+      progressLabel.textContent = 'Uploading photo to AWS S3...';
+
+      // Step 2: Upload the file directly to S3 using the presigned URL
+      const uploadRes = await fetch(upload_url, {
+        method: 'PUT',
+        headers: {'Content-Type': selectedFile.type},
+        body: selectedFile
+      });
+
+      if (!uploadRes.ok) throw new Error('S3 upload failed');
+
+      progressBar.style.width = '100%';
+      progressLabel.textContent = '✅ Uploaded successfully!';
+
+      // Step 3: Put the S3 URL in the input field and show preview
+      document.getElementById('p-photo').value = public_url;
+      previewPhoto(public_url);
+      status.textContent = '✅ Ready — click Save All Changes';
+      btn.textContent = '✅ Uploaded';
+
+    } catch (err) {
+      progressBar.style.width = '0%';
+      progressLabel.textContent = '❌ ' + err.message;
+      status.textContent = 'Upload failed: ' + err.message;
+      btn.disabled = false;
+      btn.textContent = '☁️ Upload to AWS S3';
     }
   }
 
-  // Toast
+  // ── TOAST ──
   function showToast(msg){
     const t=document.getElementById('toast');
-    t.textContent=msg;t.classList.add('show');
+    t.textContent=msg; t.classList.add('show');
     setTimeout(()=>t.classList.remove('show'),3000);
   }
 
-  // Save profile
+  // ── SAVE PROFILE ──
   async function saveProfile(){
     const res=await fetch('/api/profile',{
-      method:'PUT',headers:{'Content-Type':'application/json'},
+      method:'PUT', headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
         name:document.getElementById('p-name').value,
         title:document.getElementById('p-title').value,
@@ -431,15 +512,15 @@
         photo_url:document.getElementById('p-photo').value,
       })
     });
-    if(res.ok){showToast('Profile saved!');setTimeout(()=>location.reload(),1500);}
-    else showToast('Error saving');
+    if(res.ok){showToast('Profile saved! Reloading...');setTimeout(()=>location.reload(),1500);}
+    else showToast('Error saving profile');
   }
 
-  // Add project
+  // ── ADD PROJECT ──
   async function addProject(){
     const stack=document.getElementById('proj-stack').value.split(',').map(s=>s.trim()).filter(Boolean);
     const res=await fetch('/api/projects',{
-      method:'POST',headers:{'Content-Type':'application/json'},
+      method:'POST', headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
         title:document.getElementById('proj-title').value,
         description:document.getElementById('proj-desc').value,
