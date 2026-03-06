@@ -1,601 +1,174 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>{{ profile.name or 'Portfolio' }} — Developer</title>
+  <title>{{ profile.name or 'Portfolio' }}</title>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet"/>
   <style>
     :root {
-      --bg:       #090909;
-      --surface:  #111111;
-      --border:   #222222;
-      --gold:     #c9a84c;
-      --gold-dim: #7a612a;
-      --text:     #e8e2d8;
-      --muted:    #666055;
-      --accent:   #d4a853;
+      --bg:#f8f9fc; --white:#ffffff; --surface:#f0f4ff; --border:#e2e8f4;
+      --teal:#0d9488; --teal-lt:#ccfbf1; --teal-dk:#0a7a6e;
+      --navy:#0f172a; --indigo:#4f46e5; --amber:#f59e0b;
+      --text:#1e293b; --muted:#64748b;
     }
-
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-    html { scroll-behavior: smooth; }
-
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: 'DM Sans', sans-serif;
-      font-weight: 300;
-      line-height: 1.7;
-      overflow-x: hidden;
-    }
-
-    /* ── NOISE OVERLAY ── */
-    body::before {
-      content: '';
-      position: fixed; inset: 0;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
-      pointer-events: none; z-index: 1000; opacity: 0.4;
-    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    html{scroll-behavior:smooth;}
+    body{background:var(--bg);color:var(--text);font-family:'Plus Jakarta Sans',sans-serif;font-weight:400;line-height:1.7;overflow-x:hidden;}
 
     /* ── NAV ── */
-    nav {
-      position: fixed; top: 0; left: 0; right: 0;
-      z-index: 100;
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 1.4rem 4rem;
-      background: rgba(9,9,9,0.85);
-      backdrop-filter: blur(12px);
-      border-bottom: 1px solid var(--border);
-    }
-
-    .nav-logo {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 1.4rem;
-      font-weight: 300;
-      letter-spacing: 0.05em;
-      color: var(--gold);
-      text-decoration: none;
-    }
-
-    .nav-links {
-      display: flex; gap: 2.5rem; list-style: none;
-    }
-
-    .nav-links a {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.72rem;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      color: var(--muted);
-      text-decoration: none;
-      transition: color 0.2s;
-    }
-
-    .nav-links a:hover { color: var(--text); }
+    nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:1.1rem 5rem;background:rgba(248,249,252,0.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);}
+    .nav-logo{font-weight:800;font-size:1.1rem;color:var(--navy);text-decoration:none;letter-spacing:-0.02em;display:flex;align-items:center;gap:0.7rem;}
+    .nav-logo-avatar{width:30px;height:30px;border-radius:50%;object-fit:cover;border:2px solid var(--teal);}
+    .nav-logo-initials{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--teal),var(--indigo));display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:800;color:#fff;flex-shrink:0;}
+    .nav-logo span{color:var(--teal);}
+    .nav-links{display:flex;gap:2.5rem;list-style:none;}
+    .nav-links a{font-family:'Space Mono',monospace;font-size:.72rem;color:var(--muted);text-decoration:none;transition:color .2s;}
+    .nav-links a:hover{color:var(--teal);}
 
     /* ── HERO ── */
-    #hero {
-      min-height: 100vh;
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      position: relative;
-      overflow: hidden;
+    #hero{min-height:100vh;display:grid;grid-template-columns:1fr 1fr;padding-top:64px;overflow:hidden;}
+    .hero-left{display:flex;flex-direction:column;justify-content:center;padding:5rem 3rem 5rem 5rem;}
+    .hero-badge{display:inline-flex;align-items:center;gap:.5rem;background:var(--teal-lt);color:var(--teal-dk);border:1px solid rgba(13,148,136,.2);font-family:'Space Mono',monospace;font-size:.68rem;padding:.35rem 1rem;border-radius:100px;margin-bottom:2rem;width:fit-content;}
+    .badge-dot{width:6px;height:6px;border-radius:50%;background:var(--teal);animation:blink 2s ease-in-out infinite;}
+    @keyframes blink{0%,100%{opacity:1;}50%{opacity:.3;}}
+    .hero-name{font-size:clamp(2.8rem,5.5vw,5rem);font-weight:800;letter-spacing:-.04em;line-height:1.05;color:var(--navy);margin-bottom:.6rem;}
+    .hero-name .accent{color:var(--teal);}
+    .hero-role{font-size:clamp(1rem,2vw,1.3rem);font-weight:500;color:var(--muted);margin-bottom:1.8rem;}
+    .hero-bio{font-size:1rem;color:var(--muted);max-width:440px;line-height:1.8;margin-bottom:2.8rem;border-left:3px solid var(--teal);padding-left:1.2rem;}
+    .hero-actions{display:flex;gap:1rem;flex-wrap:wrap;}
+    .btn{display:inline-flex;align-items:center;gap:.5rem;font-weight:600;font-size:.88rem;text-decoration:none;padding:.85rem 1.8rem;border-radius:8px;border:2px solid;transition:all .25s;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;}
+    .btn-primary{background:var(--teal);border-color:var(--teal);color:#fff;}
+    .btn-primary:hover{background:var(--teal-dk);border-color:var(--teal-dk);transform:translateY(-2px);box-shadow:0 8px 24px rgba(13,148,136,.3);}
+    .btn-secondary{background:transparent;border-color:var(--border);color:var(--text);}
+    .btn-secondary:hover{border-color:var(--teal);color:var(--teal);}
+
+    /* ── HERO RIGHT / PROFILE CARD ── */
+    .hero-right{position:relative;display:flex;align-items:center;justify-content:center;padding:4rem 3rem;background:linear-gradient(135deg,rgba(13,148,136,.04) 0%,rgba(79,70,229,.04) 100%);}
+    .hero-visual{width:100%;max-width:400px;background:var(--white);border:1px solid var(--border);border-radius:20px;padding:2rem;box-shadow:0 20px 60px rgba(0,0,0,.08);}
+    .hero-visual-header{display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem;}
+
+    /* ── PROFILE PICTURE ── */
+    .profile-pic-wrap{position:relative;flex-shrink:0;}
+    .profile-pic{
+      width:64px;height:64px;border-radius:50%;object-fit:cover;
+      border:3px solid var(--teal);display:block;
+    }
+    .profile-initials{
+      width:64px;height:64px;border-radius:50%;
+      background:linear-gradient(135deg,var(--teal) 0%,var(--indigo) 100%);
+      display:flex;align-items:center;justify-content:center;
+      font-size:1.6rem;font-weight:800;color:#fff;border:3px solid var(--teal);
+    }
+    .profile-online-dot{
+      position:absolute;bottom:2px;right:2px;
+      width:14px;height:14px;border-radius:50%;
+      background:#22c55e;border:2px solid var(--white);
     }
 
-    .hero-left {
-      display: flex; flex-direction: column;
-      justify-content: center;
-      padding: 8rem 4rem 4rem 4rem;
-      position: relative; z-index: 2;
-    }
+    .hero-visual-name{font-weight:700;font-size:1.05rem;color:var(--navy);}
+    .hero-visual-sub{font-size:.78rem;color:var(--muted);}
+    .stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem;}
+    .stat-card{background:var(--surface);border-radius:10px;padding:1rem;text-align:center;}
+    .stat-num{font-size:1.6rem;font-weight:800;color:var(--teal);letter-spacing:-.04em;}
+    .stat-label{font-size:.72rem;color:var(--muted);font-weight:500;}
+    .stack-tags{display:flex;flex-wrap:wrap;gap:.5rem;}
+    .stack-tag{font-family:'Space Mono',monospace;font-size:.62rem;background:var(--teal-lt);color:var(--teal-dk);border-radius:6px;padding:.22rem .6rem;}
 
-    .hero-eyebrow {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.72rem;
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-      color: var(--gold);
-      margin-bottom: 1.5rem;
-      display: flex; align-items: center; gap: 1rem;
-    }
-
-    .hero-eyebrow::before {
-      content: '';
-      display: block; width: 2rem; height: 1px;
-      background: var(--gold);
-    }
-
-    .hero-name {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: clamp(3.5rem, 7vw, 6.5rem);
-      font-weight: 300;
-      line-height: 1.0;
-      letter-spacing: -0.02em;
-      margin-bottom: 0.3rem;
-    }
-
-    .hero-name em {
-      font-style: italic;
-      color: var(--gold);
-    }
-
-    .hero-title {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: clamp(1.2rem, 2.5vw, 1.8rem);
-      font-weight: 300;
-      font-style: italic;
-      color: var(--muted);
-      margin-bottom: 2.5rem;
-    }
-
-    .hero-bio {
-      font-size: 0.95rem;
-      color: var(--muted);
-      max-width: 420px;
-      line-height: 1.8;
-      margin-bottom: 3rem;
-    }
-
-    .hero-actions {
-      display: flex; gap: 1rem; flex-wrap: wrap;
-    }
-
-    .btn {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.72rem;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      text-decoration: none;
-      padding: 0.85rem 2rem;
-      border: 1px solid;
-      transition: all 0.25s;
-      cursor: pointer;
-      display: inline-block;
-    }
-
-    .btn-primary {
-      background: var(--gold);
-      border-color: var(--gold);
-      color: #090909;
-      font-weight: 500;
-    }
-
-    .btn-primary:hover { background: transparent; color: var(--gold); }
-
-    .btn-secondary {
-      background: transparent;
-      border-color: var(--border);
-      color: var(--muted);
-    }
-
-    .btn-secondary:hover { border-color: var(--gold); color: var(--gold); }
-
-    .hero-right {
-      position: relative; overflow: hidden;
-    }
-
-    .hero-grid {
-      position: absolute; inset: 0;
-      background-image:
-        linear-gradient(var(--border) 1px, transparent 1px),
-        linear-gradient(90deg, var(--border) 1px, transparent 1px);
-      background-size: 60px 60px;
-      opacity: 0.4;
-    }
-
-    .hero-orb {
-      position: absolute;
-      width: 500px; height: 500px;
-      border-radius: 50%;
-      background: radial-gradient(circle, rgba(201,168,76,0.15) 0%, transparent 70%);
-      top: 50%; left: 50%; transform: translate(-50%, -50%);
-    }
-
-    .hero-location {
-      position: absolute; bottom: 3rem; right: 3rem;
-      font-family: 'DM Mono', monospace;
-      font-size: 0.72rem;
-      color: var(--muted);
-      letter-spacing: 0.1em;
-      writing-mode: vertical-rl;
-    }
-
-    .hero-scroll {
-      position: absolute; bottom: 3rem; left: 4rem;
-      font-family: 'DM Mono', monospace;
-      font-size: 0.65rem;
-      color: var(--muted);
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      display: flex; align-items: center; gap: 0.8rem;
-    }
-
-    .scroll-line {
-      width: 1px; height: 3rem;
-      background: linear-gradient(to bottom, var(--gold), transparent);
-      animation: scrollPulse 2s ease-in-out infinite;
-    }
-
-    @keyframes scrollPulse {
-      0%, 100% { opacity: 0.3; } 50% { opacity: 1; }
-    }
-
-    /* ── SECTION BASE ── */
-    section {
-      padding: 7rem 4rem;
-    }
-
-    .section-header {
-      margin-bottom: 4rem;
-    }
-
-    .section-label {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.68rem;
-      letter-spacing: 0.25em;
-      text-transform: uppercase;
-      color: var(--gold);
-      margin-bottom: 1rem;
-      display: flex; align-items: center; gap: 1rem;
-    }
-
-    .section-label::after {
-      content: ''; flex: 1; max-width: 4rem;
-      height: 1px; background: var(--gold-dim);
-    }
-
-    .section-title {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: clamp(2.5rem, 5vw, 4rem);
-      font-weight: 300;
-      line-height: 1.1;
-    }
-
-    .section-title em {
-      font-style: italic;
-      color: var(--gold);
-    }
+    /* ── SECTIONS ── */
+    section{padding:6rem 5rem;}
+    .section-tag{font-family:'Space Mono',monospace;font-size:.7rem;letter-spacing:.15em;text-transform:uppercase;color:var(--teal);font-weight:700;margin-bottom:.7rem;}
+    .section-title{font-size:clamp(2rem,4vw,3rem);font-weight:800;letter-spacing:-.03em;color:var(--navy);margin-bottom:1rem;line-height:1.1;}
+    .section-sub{font-size:1rem;color:var(--muted);max-width:520px;margin-bottom:3.5rem;}
 
     /* ── PROJECTS ── */
-    #projects { background: var(--surface); }
-
-    .projects-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-      gap: 1.5px;
-    }
-
-    .project-card {
-      background: var(--bg);
-      padding: 2.5rem;
-      border: 1px solid var(--border);
-      transition: border-color 0.3s, transform 0.3s;
-      cursor: default;
-      position: relative; overflow: hidden;
-    }
-
-    .project-card::before {
-      content: '';
-      position: absolute; top: 0; left: 0; right: 0;
-      height: 2px;
-      background: linear-gradient(90deg, transparent, var(--gold), transparent);
-      opacity: 0;
-      transition: opacity 0.3s;
-    }
-
-    .project-card:hover { border-color: var(--gold-dim); transform: translateY(-4px); }
-    .project-card:hover::before { opacity: 1; }
-
-    .project-featured-badge {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.6rem;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      color: var(--gold);
-      border: 1px solid var(--gold-dim);
-      padding: 0.2rem 0.6rem;
-      display: inline-block;
-      margin-bottom: 1.2rem;
-    }
-
-    .project-title {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 1.6rem;
-      font-weight: 400;
-      margin-bottom: 0.8rem;
-      line-height: 1.2;
-    }
-
-    .project-desc {
-      font-size: 0.88rem;
-      color: var(--muted);
-      line-height: 1.75;
-      margin-bottom: 1.5rem;
-    }
-
-    .project-stack {
-      display: flex; flex-wrap: wrap; gap: 0.5rem;
-      margin-bottom: 1.8rem;
-    }
-
-    .tag {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.65rem;
-      letter-spacing: 0.08em;
-      background: #1a1a1a;
-      border: 1px solid var(--border);
-      color: var(--muted);
-      padding: 0.25rem 0.65rem;
-    }
-
-    .project-links {
-      display: flex; gap: 1rem;
-    }
-
-    .project-link {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.68rem;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--gold);
-      text-decoration: none;
-      border-bottom: 1px solid transparent;
-      padding-bottom: 1px;
-      transition: border-color 0.2s;
-    }
-
-    .project-link:hover { border-color: var(--gold); }
+    #projects{background:var(--white);}
+    .projects-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:1.5rem;}
+    .project-card{background:var(--bg);border:1px solid var(--border);border-radius:16px;padding:2rem;transition:all .3s;position:relative;overflow:hidden;}
+    .project-card::after{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--teal),var(--indigo));opacity:0;transition:opacity .3s;}
+    .project-card:hover{transform:translateY(-6px);box-shadow:0 16px 48px rgba(0,0,0,.1);border-color:rgba(13,148,136,.3);}
+    .project-card:hover::after{opacity:1;}
+    .featured-badge{display:inline-flex;align-items:center;gap:.4rem;background:var(--amber);color:var(--navy);font-family:'Space Mono',monospace;font-size:.6rem;font-weight:700;text-transform:uppercase;padding:.2rem .7rem;border-radius:100px;margin-bottom:1rem;}
+    .project-title{font-size:1.25rem;font-weight:700;color:var(--navy);margin-bottom:.6rem;}
+    .project-desc{font-size:.88rem;color:var(--muted);line-height:1.75;margin-bottom:1.4rem;}
+    .project-stack{display:flex;flex-wrap:wrap;gap:.4rem;margin-bottom:1.5rem;}
+    .tag{font-family:'Space Mono',monospace;font-size:.62rem;background:var(--surface);border:1px solid var(--border);color:var(--muted);padding:.22rem .6rem;border-radius:6px;}
+    .project-links{display:flex;gap:1rem;}
+    .project-link{font-family:'Space Mono',monospace;font-size:.68rem;color:var(--teal);text-decoration:none;font-weight:700;display:inline-flex;align-items:center;gap:.3rem;transition:gap .2s;}
+    .project-link:hover{gap:.6rem;}
 
     /* ── SKILLS ── */
-    #skills { background: var(--bg); }
-
-    .skills-layout {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 3rem;
-    }
-
-    .skill-category-title {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.68rem;
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-      color: var(--gold);
-      border-bottom: 1px solid var(--border);
-      padding-bottom: 0.8rem;
-      margin-bottom: 1.5rem;
-    }
-
-    .skill-item {
-      margin-bottom: 1.2rem;
-    }
-
-    .skill-header {
-      display: flex; justify-content: space-between;
-      margin-bottom: 0.4rem;
-    }
-
-    .skill-name {
-      font-size: 0.9rem;
-      font-weight: 400;
-    }
-
-    .skill-pct {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.72rem;
-      color: var(--muted);
-    }
-
-    .skill-bar {
-      height: 1px;
-      background: var(--border);
-      position: relative;
-      overflow: visible;
-    }
-
-    .skill-fill {
-      height: 100%;
-      background: linear-gradient(90deg, var(--gold-dim), var(--gold));
-      position: relative;
-      transition: width 1s ease;
-    }
-
-    .skill-fill::after {
-      content: '';
-      position: absolute; right: 0; top: 50%;
-      transform: translateY(-50%);
-      width: 5px; height: 5px;
-      border-radius: 50%;
-      background: var(--gold);
-    }
+    #skills{background:var(--bg);}
+    .skills-layout{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:2rem;}
+    .skill-group-card{background:var(--white);border:1px solid var(--border);border-radius:16px;padding:1.8rem;}
+    .skill-cat-title{font-family:'Space Mono',monospace;font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;color:var(--teal);font-weight:700;margin-bottom:1.4rem;padding-bottom:.8rem;border-bottom:2px solid var(--teal-lt);}
+    .skill-item{margin-bottom:1.1rem;}
+    .skill-header{display:flex;justify-content:space-between;margin-bottom:.4rem;}
+    .skill-name{font-size:.88rem;font-weight:600;}
+    .skill-pct{font-family:'Space Mono',monospace;font-size:.7rem;color:var(--teal);font-weight:700;}
+    .skill-bar{height:5px;background:var(--surface);border-radius:3px;overflow:hidden;}
+    .skill-fill{height:100%;background:linear-gradient(90deg,var(--teal),var(--indigo));border-radius:3px;width:0%;transition:width 1.2s cubic-bezier(.25,.8,.25,1);}
 
     /* ── CONTACT ── */
-    #contact {
-      background: var(--surface);
-      text-align: center;
-    }
-
-    .contact-inner {
-      max-width: 600px;
-      margin: 0 auto;
-    }
-
-    .contact-email {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: clamp(1.5rem, 3vw, 2.5rem);
-      font-weight: 300;
-      font-style: italic;
-      color: var(--gold);
-      text-decoration: none;
-      border-bottom: 1px solid var(--gold-dim);
-      transition: color 0.2s;
-      display: inline-block;
-      margin: 2rem 0;
-    }
-
-    .contact-email:hover { color: var(--text); }
-
-    .contact-links {
-      display: flex; justify-content: center; gap: 2rem;
-      margin-top: 2.5rem;
-    }
-
-    .social-link {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.72rem;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      color: var(--muted);
-      text-decoration: none;
-      transition: color 0.2s;
-    }
-
-    .social-link:hover { color: var(--gold); }
+    #contact{background:var(--navy);color:#fff;}
+    #contact .section-tag{color:var(--teal);}
+    #contact .section-title{color:#fff;}
+    #contact .section-sub{color:rgba(255,255,255,.6);}
+    .contact-inner{max-width:700px;}
+    .contact-card{display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:2rem 2.5rem;flex-wrap:wrap;gap:1.5rem;margin-bottom:2.5rem;}
+    .contact-email{font-size:clamp(1.2rem,2.5vw,1.8rem);font-weight:700;color:#fff;text-decoration:none;transition:color .2s;}
+    .contact-email:hover{color:var(--teal);}
+    .contact-links{display:flex;gap:1.2rem;}
+    .social-link{font-family:'Space Mono',monospace;font-size:.75rem;color:rgba(255,255,255,.5);text-decoration:none;border:1px solid rgba(255,255,255,.15);padding:.5rem 1rem;border-radius:8px;transition:all .2s;}
+    .social-link:hover{border-color:var(--teal);color:var(--teal);}
 
     /* ── FOOTER ── */
-    footer {
-      background: var(--bg);
-      border-top: 1px solid var(--border);
-      padding: 2rem 4rem;
-      display: flex; justify-content: space-between; align-items: center;
+    footer{background:#080f1f;border-top:1px solid rgba(255,255,255,.06);padding:1.8rem 5rem;display:flex;justify-content:space-between;align-items:center;}
+    footer p{font-family:'Space Mono',monospace;font-size:.68rem;color:rgba(255,255,255,.3);}
+
+    /* ── ADMIN ── */
+    #admin-toggle{position:fixed;bottom:2rem;right:2rem;z-index:200;background:var(--teal);border:none;color:#fff;font-family:'Space Mono',monospace;font-size:.68rem;padding:.7rem 1.2rem;border-radius:100px;cursor:pointer;box-shadow:0 4px 16px rgba(13,148,136,.4);transition:all .2s;}
+    #admin-toggle:hover{background:var(--teal-dk);transform:translateY(-2px);}
+    #admin-panel{display:none;position:fixed;inset:0;z-index:300;background:rgba(15,23,42,.97);backdrop-filter:blur(12px);padding:3rem;overflow-y:auto;}
+    #admin-panel.open{display:block;}
+    .admin-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:2.5rem;border-bottom:1px solid rgba(255,255,255,.1);padding-bottom:1.5rem;}
+    .admin-title{font-size:2rem;font-weight:800;color:var(--teal);}
+    .admin-close{background:none;border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.5);padding:.5rem 1rem;cursor:pointer;font-family:'Space Mono',monospace;font-size:.7rem;border-radius:8px;transition:all .2s;}
+    .admin-close:hover{border-color:var(--teal);color:var(--teal);}
+    .admin-form{max-width:700px;margin-bottom:3rem;}
+    .admin-subtitle{font-size:1.2rem;font-weight:700;color:#fff;margin-bottom:1.5rem;}
+    .form-group{margin-bottom:1.4rem;}
+    label{display:block;font-family:'Space Mono',monospace;font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.4);margin-bottom:.5rem;}
+    input,textarea{width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);color:#fff;padding:.8rem 1rem;font-family:'Plus Jakarta Sans',sans-serif;font-size:.9rem;outline:none;border-radius:8px;transition:border-color .2s;}
+    input:focus,textarea:focus{border-color:var(--teal);}
+    textarea{min-height:100px;resize:vertical;}
+    .checkbox-row{display:flex;align-items:center;gap:.8rem;cursor:pointer;}
+    .checkbox-row input{width:auto;}
+
+    /* ── PHOTO UPLOAD WIDGET ── */
+    .photo-upload-area{
+      border:2px dashed rgba(255,255,255,.2);border-radius:12px;
+      padding:1.5rem;text-align:center;margin-bottom:1rem;
+      transition:border-color .2s;
     }
+    .photo-upload-area:hover{border-color:var(--teal);}
+    .photo-preview-wrap{display:flex;align-items:center;gap:1.5rem;margin-bottom:1rem;}
+    .photo-preview{width:80px;height:80px;border-radius:50%;object-fit:cover;border:3px solid var(--teal);display:none;}
+    .photo-preview-placeholder{width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,var(--teal),var(--indigo));display:flex;align-items:center;justify-content:center;font-size:2rem;font-weight:800;color:#fff;flex-shrink:0;}
+    .photo-tips{font-size:.78rem;color:rgba(255,255,255,.4);margin-top:.8rem;text-align:left;line-height:1.6;}
+    .photo-tip-link{color:var(--teal);text-decoration:none;}
+    .photo-tip-link:hover{text-decoration:underline;}
 
-    footer p {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.68rem;
-      letter-spacing: 0.1em;
-      color: var(--muted);
-    }
+    .toast{position:fixed;bottom:5rem;right:2rem;background:var(--teal);color:#fff;font-family:'Space Mono',monospace;font-size:.75rem;padding:.8rem 1.5rem;border-radius:8px;z-index:400;opacity:0;transform:translateY(10px);transition:all .3s;pointer-events:none;}
+    .toast.show{opacity:1;transform:translateY(0);}
+    .fade-in{opacity:0;transform:translateY(24px);transition:opacity .7s ease,transform .7s ease;}
+    .fade-in.visible{opacity:1;transform:translateY(0);}
 
-    /* ── ADMIN PANEL ── */
-    #admin-toggle {
-      position: fixed; bottom: 2rem; right: 2rem;
-      z-index: 200;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      color: var(--muted);
-      font-family: 'DM Mono', monospace;
-      font-size: 0.68rem;
-      letter-spacing: 0.1em;
-      padding: 0.6rem 1rem;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-
-    #admin-toggle:hover { border-color: var(--gold); color: var(--gold); }
-
-    #admin-panel {
-      display: none;
-      position: fixed; inset: 0;
-      z-index: 300;
-      background: rgba(9,9,9,0.95);
-      backdrop-filter: blur(12px);
-      padding: 3rem;
-      overflow-y: auto;
-    }
-
-    #admin-panel.open { display: block; }
-
-    .admin-header {
-      display: flex; justify-content: space-between; align-items: center;
-      margin-bottom: 2.5rem;
-      border-bottom: 1px solid var(--border);
-      padding-bottom: 1.5rem;
-    }
-
-    .admin-title {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 2rem;
-      font-weight: 300;
-      color: var(--gold);
-    }
-
-    .admin-close {
-      background: none; border: 1px solid var(--border);
-      color: var(--muted); padding: 0.5rem 1rem;
-      cursor: pointer; font-family: 'DM Mono', monospace;
-      font-size: 0.7rem; letter-spacing: 0.1em;
-      transition: all 0.2s;
-    }
-
-    .admin-close:hover { border-color: var(--gold); color: var(--gold); }
-
-    .admin-form {
-      max-width: 700px;
-    }
-
-    .form-group {
-      margin-bottom: 1.5rem;
-    }
-
-    label {
-      display: block;
-      font-family: 'DM Mono', monospace;
-      font-size: 0.68rem;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      color: var(--muted);
-      margin-bottom: 0.5rem;
-    }
-
-    input, textarea {
-      width: 100%;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      color: var(--text);
-      padding: 0.8rem 1rem;
-      font-family: 'DM Sans', sans-serif;
-      font-size: 0.9rem;
-      outline: none;
-      transition: border-color 0.2s;
-    }
-
-    input:focus, textarea:focus { border-color: var(--gold); }
-
-    textarea { min-height: 100px; resize: vertical; }
-
-    .checkbox-label {
-      display: flex; align-items: center; gap: 0.8rem;
-      cursor: pointer; font-size: 0.9rem;
-      text-transform: none; letter-spacing: 0;
-      font-family: 'DM Sans', sans-serif;
-    }
-
-    .toast {
-      position: fixed; bottom: 5rem; right: 2rem;
-      background: var(--gold);
-      color: #090909;
-      font-family: 'DM Mono', monospace;
-      font-size: 0.75rem;
-      letter-spacing: 0.1em;
-      padding: 0.8rem 1.5rem;
-      z-index: 400;
-      opacity: 0; transform: translateY(10px);
-      transition: all 0.3s;
-    }
-
-    .toast.show { opacity: 1; transform: translateY(0); }
-
-    /* ── ANIMATIONS ── */
-    .fade-in {
-      opacity: 0; transform: translateY(20px);
-      transition: opacity 0.6s ease, transform 0.6s ease;
-    }
-
-    .fade-in.visible { opacity: 1; transform: translateY(0); }
-
-    /* ── RESPONSIVE ── */
-    @media (max-width: 768px) {
-      nav { padding: 1.2rem 1.5rem; }
-      .nav-links { gap: 1.5rem; }
-      #hero { grid-template-columns: 1fr; }
-      .hero-left { padding: 7rem 1.5rem 4rem; }
-      .hero-right { display: none; }
-      section { padding: 5rem 1.5rem; }
-      footer { flex-direction: column; gap: 1rem; text-align: center; }
-      #admin-panel { padding: 1.5rem; }
+    @media(max-width:768px){
+      nav{padding:1.1rem 1.5rem;} .nav-links{gap:1.5rem;}
+      #hero{grid-template-columns:1fr;} .hero-left{padding:4rem 1.5rem 2rem;} .hero-right{display:none;}
+      section{padding:4rem 1.5rem;} footer{flex-direction:column;gap:1rem;padding:1.5rem;} #admin-panel{padding:1.5rem;}
     }
   </style>
 </head>
@@ -603,7 +176,15 @@
 
 <!-- NAV -->
 <nav>
-  <a class="nav-logo" href="#hero">{{ profile.name or 'Portfolio' }}</a>
+  <a class="nav-logo" href="#hero">
+    {% if profile.photo_url %}
+      <img class="nav-logo-avatar" src="{{ profile.photo_url }}" alt="{{ profile.name }}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
+      <div class="nav-logo-initials" style="display:none">{{ (profile.name or 'Y')[0] }}</div>
+    {% else %}
+      <div class="nav-logo-initials">{{ (profile.name or 'Y')[0] }}</div>
+    {% endif %}
+    {{ (profile.name or 'Your Name').split(' ')[0] }}<span>.</span>
+  </a>
   <ul class="nav-links">
     <li><a href="#projects">Work</a></li>
     <li><a href="#skills">Skills</a></li>
@@ -614,79 +195,88 @@
 <!-- HERO -->
 <section id="hero">
   <div class="hero-left">
-    <p class="hero-eyebrow">Available for opportunities</p>
+    <div class="hero-badge"><div class="badge-dot"></div>Open to opportunities</div>
     <h1 class="hero-name">
       {{ (profile.name or 'Your Name').split(' ')[0] }}<br>
-      <em>{{ ' '.join((profile.name or 'Your Name').split(' ')[1:]) or 'Name' }}</em>
+      <span class="accent">{{ ' '.join((profile.name or 'Your Name').split(' ')[1:]) or 'Name' }}</span>
     </h1>
-    <p class="hero-title">{{ profile.title or 'Full-Stack Developer' }}</p>
+    <p class="hero-role">{{ profile.title or 'Full-Stack Developer' }}</p>
     <p class="hero-bio">{{ profile.bio or 'Welcome to my portfolio.' }}</p>
     <div class="hero-actions">
-      <a href="#projects" class="btn btn-primary">View Work</a>
+      <a href="#projects" class="btn btn-primary">View My Work →</a>
       <a href="#contact" class="btn btn-secondary">Get In Touch</a>
     </div>
   </div>
+
   <div class="hero-right">
-    <div class="hero-grid"></div>
-    <div class="hero-orb"></div>
-    <p class="hero-location">{{ profile.location or 'Earth' }}</p>
-  </div>
-  <div class="hero-scroll">
-    <div class="scroll-line"></div>
-    Scroll
+    <div class="hero-visual">
+      <!-- PROFILE PICTURE IN CARD -->
+      <div class="hero-visual-header">
+        <div class="profile-pic-wrap">
+          {% if profile.photo_url %}
+            <img class="profile-pic" src="{{ profile.photo_url }}" alt="{{ profile.name }}"
+                 onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
+            <div class="profile-initials" style="display:none">{{ (profile.name or 'Y')[0] }}</div>
+          {% else %}
+            <div class="profile-initials">{{ (profile.name or 'Y')[0] }}</div>
+          {% endif %}
+          <div class="profile-online-dot"></div>
+        </div>
+        <div>
+          <div class="hero-visual-name">{{ profile.name or 'Your Name' }}</div>
+          <div class="hero-visual-sub">{{ profile.location or 'Tanzania' }}</div>
+        </div>
+      </div>
+
+      <div class="stat-grid">
+        <div class="stat-card"><div class="stat-num">{{ projects|length }}+</div><div class="stat-label">Projects</div></div>
+        <div class="stat-card"><div class="stat-num">3+</div><div class="stat-label">Years Coding</div></div>
+        <div class="stat-card"><div class="stat-num">{{ skills_by_cat|length }}+</div><div class="stat-label">Tech Areas</div></div>
+        <div class="stat-card"><div class="stat-num">100%</div><div class="stat-label">Committed</div></div>
+      </div>
+      <div class="stack-tags">
+        <span class="stack-tag">Python</span><span class="stack-tag">Flutter</span>
+        <span class="stack-tag">PostgreSQL</span><span class="stack-tag">Cloud</span><span class="stack-tag">Flask</span>
+      </div>
+    </div>
   </div>
 </section>
 
 <!-- PROJECTS -->
 <section id="projects">
-  <div class="section-header">
-    <p class="section-label">Selected Work</p>
-    <h2 class="section-title">Projects &amp; <em>Builds</em></h2>
-  </div>
+  <p class="section-tag">Selected Work</p>
+  <h2 class="section-title">Projects & Builds</h2>
+  <p class="section-sub">Real-world projects built with modern tools and deployed to production.</p>
   <div class="projects-grid">
     {% for p in projects %}
     <div class="project-card fade-in">
-      {% if p.featured %}<span class="project-featured-badge">Featured</span>{% endif %}
+      {% if p.featured %}<span class="featured-badge">⭐ Featured</span>{% endif %}
       <h3 class="project-title">{{ p.title }}</h3>
       <p class="project-desc">{{ p.description }}</p>
-      <div class="project-stack">
-        {% for tech in (p.tech_stack or []) %}
-        <span class="tag">{{ tech }}</span>
-        {% endfor %}
-      </div>
+      <div class="project-stack">{% for tech in (p.tech_stack or []) %}<span class="tag">{{ tech }}</span>{% endfor %}</div>
       <div class="project-links">
         {% if p.github_url %}<a href="{{ p.github_url }}" class="project-link" target="_blank">GitHub →</a>{% endif %}
-        {% if p.live_url %}<a href="{{ p.live_url }}" class="project-link" target="_blank">Live →</a>{% endif %}
+        {% if p.live_url %}<a href="{{ p.live_url }}" class="project-link" target="_blank">Live Site →</a>{% endif %}
       </div>
     </div>
     {% endfor %}
-    {% if not projects %}
-    <div class="project-card">
-      <p style="color:var(--muted); font-style:italic;">No projects yet. Use the Admin panel to add your work.</p>
-    </div>
-    {% endif %}
+    {% if not projects %}<div class="project-card"><p style="color:var(--muted);font-style:italic;">Use the Admin panel to add projects.</p></div>{% endif %}
   </div>
 </section>
 
 <!-- SKILLS -->
 <section id="skills">
-  <div class="section-header">
-    <p class="section-label">Capabilities</p>
-    <h2 class="section-title">Tools &amp; <em>Technologies</em></h2>
-  </div>
+  <p class="section-tag">Capabilities</p>
+  <h2 class="section-title">Tools & Technologies</h2>
+  <p class="section-sub">Technologies I use to build, deploy, and scale applications.</p>
   <div class="skills-layout">
     {% for category, skill_list in skills_by_cat.items() %}
-    <div class="fade-in">
-      <h3 class="skill-category-title">{{ category }}</h3>
+    <div class="skill-group-card fade-in">
+      <h3 class="skill-cat-title">{{ category }}</h3>
       {% for skill in skill_list %}
       <div class="skill-item">
-        <div class="skill-header">
-          <span class="skill-name">{{ skill.name }}</span>
-          <span class="skill-pct">{{ skill.level }}%</span>
-        </div>
-        <div class="skill-bar">
-          <div class="skill-fill" style="width: 0%" data-width="{{ skill.level }}%"></div>
-        </div>
+        <div class="skill-header"><span class="skill-name">{{ skill.name }}</span><span class="skill-pct">{{ skill.level }}%</span></div>
+        <div class="skill-bar"><div class="skill-fill" style="width:0%" data-width="{{ skill.level }}%"></div></div>
       </div>
       {% endfor %}
     </div>
@@ -697,16 +287,13 @@
 <!-- CONTACT -->
 <section id="contact">
   <div class="contact-inner">
-    <div class="section-header">
-      <p class="section-label" style="justify-content:center;">Let's Talk</p>
-      <h2 class="section-title">Get In <em>Touch</em></h2>
+    <p class="section-tag">Let's Talk</p>
+    <h2 class="section-title">Get In Touch</h2>
+    <p class="section-sub">Open to freelance projects, collaborations, and full-time opportunities. Based in Arusha, available worldwide.</p>
+    <div class="contact-card">
+      <a href="mailto:{{ profile.email or 'hello@yourname.dev' }}" class="contact-email">{{ profile.email or 'hello@yourname.dev' }}</a>
+      <a href="mailto:{{ profile.email or '' }}" class="btn btn-primary">Send Email →</a>
     </div>
-    <p style="color:var(--muted);font-size:0.95rem;margin-bottom:1rem;">
-      Open to freelance projects, collaborations, and full-time opportunities.
-    </p>
-    <a href="mailto:{{ profile.email or '' }}" class="contact-email">
-      {{ profile.email or 'hello@yourname.dev' }}
-    </a>
     <div class="contact-links">
       {% if profile.github %}<a href="{{ profile.github }}" class="social-link" target="_blank">GitHub</a>{% endif %}
       {% if profile.linkedin %}<a href="{{ profile.linkedin }}" class="social-link" target="_blank">LinkedIn</a>{% endif %}
@@ -714,16 +301,13 @@
   </div>
 </section>
 
-<!-- FOOTER -->
 <footer>
-  <p>© 2025 {{ profile.name or 'Your Name' }}. Built with Flask + Neon. Hosted on Vercel.</p>
+  <p>© 2025 {{ profile.name or 'Your Name' }} — Flask + Neon + Vercel</p>
   <p>{{ profile.location or '' }}</p>
 </footer>
 
-<!-- ADMIN TOGGLE -->
-<button id="admin-toggle" onclick="document.getElementById('admin-panel').classList.toggle('open')">
-  ⚙ Admin
-</button>
+<!-- ADMIN BUTTON -->
+<button id="admin-toggle" onclick="document.getElementById('admin-panel').classList.toggle('open')">⚙ Admin</button>
 
 <!-- ADMIN PANEL -->
 <div id="admin-panel">
@@ -732,9 +316,46 @@
     <button class="admin-close" onclick="document.getElementById('admin-panel').classList.remove('open')">✕ Close</button>
   </div>
 
-  <!-- Profile Form -->
-  <div class="admin-form" style="margin-bottom:3rem;">
-    <h3 style="font-family:'Cormorant Garamond',serif;font-size:1.4rem;margin-bottom:1.5rem;color:var(--gold)">Edit Profile</h3>
+  <div class="admin-form">
+    <h3 class="admin-subtitle">📸 Profile Picture</h3>
+
+    <!-- Photo preview + URL input -->
+    <div class="photo-upload-area">
+      <div class="photo-preview-wrap">
+        <div style="position:relative;flex-shrink:0;">
+          <img id="photo-preview-img" class="photo-preview"
+               src="{{ profile.photo_url or '' }}"
+               {% if profile.photo_url %}style="display:block"{% endif %}
+               alt="Profile photo"/>
+          <div id="photo-preview-placeholder" class="photo-preview-placeholder"
+               {% if profile.photo_url %}style="display:none"{% endif %}>
+            {{ (profile.name or 'Y')[0] }}
+          </div>
+        </div>
+        <div style="flex:1;text-align:left;">
+          <div style="font-size:.9rem;font-weight:600;color:#fff;margin-bottom:.4rem;">Your Profile Photo</div>
+          <div style="font-size:.8rem;color:rgba(255,255,255,.4);line-height:1.5;">Paste a direct image link below.<br>Appears in the nav bar and profile card.</div>
+        </div>
+      </div>
+
+      <div class="form-group" style="margin-bottom:.5rem;">
+        <label>Photo URL (direct image link)</label>
+        <input id="p-photo" type="url"
+               value="{{ profile.photo_url or '' }}"
+               placeholder="https://i.imgur.com/yourphoto.jpg"
+               oninput="previewPhoto(this.value)"/>
+      </div>
+    </div>
+
+    <div class="photo-tips">
+      <strong style="color:rgba(255,255,255,.6);">How to get a free photo URL:</strong><br>
+      1. Go to <a href="https://imgur.com" target="_blank" class="photo-tip-link">imgur.com</a> → click "New post" → upload your photo<br>
+      2. Right-click the uploaded photo → "Copy image address"<br>
+      3. Paste that link in the box above<br><br>
+      Or use <a href="https://postimages.org" target="_blank" class="photo-tip-link">postimages.org</a> → upload → copy "Direct link"
+    </div>
+
+    <h3 class="admin-subtitle" style="margin-top:2rem;">Edit Profile</h3>
     <div class="form-group"><label>Name</label><input id="p-name" value="{{ profile.name or '' }}"/></div>
     <div class="form-group"><label>Title / Role</label><input id="p-title" value="{{ profile.title or '' }}"/></div>
     <div class="form-group"><label>Bio</label><textarea id="p-bio">{{ profile.bio or '' }}</textarea></div>
@@ -742,23 +363,17 @@
     <div class="form-group"><label>GitHub URL</label><input id="p-github" value="{{ profile.github or '' }}"/></div>
     <div class="form-group"><label>LinkedIn URL</label><input id="p-linkedin" value="{{ profile.linkedin or '' }}"/></div>
     <div class="form-group"><label>Location</label><input id="p-location" value="{{ profile.location or '' }}"/></div>
-    <button class="btn btn-primary" onclick="saveProfile()">Save Profile</button>
+    <button class="btn btn-primary" onclick="saveProfile()">Save All Changes</button>
   </div>
 
-  <!-- Add Project Form -->
   <div class="admin-form">
-    <h3 style="font-family:'Cormorant Garamond',serif;font-size:1.4rem;margin-bottom:1.5rem;color:var(--gold)">Add New Project</h3>
+    <h3 class="admin-subtitle">Add New Project</h3>
     <div class="form-group"><label>Title</label><input id="proj-title" placeholder="My Amazing Project"/></div>
     <div class="form-group"><label>Description</label><textarea id="proj-desc" placeholder="What does this project do?"></textarea></div>
     <div class="form-group"><label>Tech Stack (comma-separated)</label><input id="proj-stack" placeholder="React, Node.js, PostgreSQL"/></div>
     <div class="form-group"><label>GitHub URL</label><input id="proj-github" placeholder="https://github.com/..."/></div>
     <div class="form-group"><label>Live URL</label><input id="proj-live" placeholder="https://..."/></div>
-    <div class="form-group">
-      <label class="checkbox-label">
-        <input type="checkbox" id="proj-featured" style="width:auto"/>
-        Featured Project
-      </label>
-    </div>
+    <div class="form-group"><label class="checkbox-row"><input type="checkbox" id="proj-featured"/> Featured Project</label></div>
     <button class="btn btn-primary" onclick="addProject()">Add Project</button>
   </div>
 </div>
@@ -766,68 +381,75 @@
 <div class="toast" id="toast"></div>
 
 <script>
-  // ── Fade-in observer ──
-  const observer = new IntersectionObserver(entries => {
-    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
-  }, { threshold: 0.1 });
-  document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+  // Fade-in
+  const obs=new IntersectionObserver(e=>e.forEach(el=>{if(el.isIntersecting)el.target.classList.add('visible');}),{threshold:.1});
+  document.querySelectorAll('.fade-in').forEach(el=>obs.observe(el));
 
-  // ── Animate skill bars ──
-  const barObserver = new IntersectionObserver(entries => {
-    entries.forEach(e => {
-      if (e.isIntersecting) {
-        e.target.querySelectorAll('.skill-fill').forEach(bar => {
-          bar.style.width = bar.dataset.width;
-        });
-      }
-    });
-  }, { threshold: 0.2 });
-  document.querySelectorAll('#skills .fade-in').forEach(el => barObserver.observe(el));
+  // Skill bars
+  const barObs=new IntersectionObserver(e=>{
+    e.forEach(el=>{if(el.isIntersecting)el.target.querySelectorAll('.skill-fill').forEach(b=>b.style.width=b.dataset.width);});
+  },{threshold:.2});
+  document.querySelectorAll('.skill-group-card').forEach(el=>barObs.observe(el));
 
-  // ── Toast ──
-  function showToast(msg) {
-    const t = document.getElementById('toast');
-    t.textContent = msg;
-    t.classList.add('show');
-    setTimeout(() => t.classList.remove('show'), 3000);
+  // Photo live preview
+  function previewPhoto(url) {
+    const img = document.getElementById('photo-preview-img');
+    const placeholder = document.getElementById('photo-preview-placeholder');
+    if (url) {
+      img.src = url;
+      img.style.display = 'block';
+      placeholder.style.display = 'none';
+      img.onerror = () => {
+        img.style.display = 'none';
+        placeholder.style.display = 'flex';
+      };
+    } else {
+      img.style.display = 'none';
+      placeholder.style.display = 'flex';
+    }
   }
 
-  // ── Save Profile ──
-  async function saveProfile() {
-    const data = {
-      name:     document.getElementById('p-name').value,
-      title:    document.getElementById('p-title').value,
-      bio:      document.getElementById('p-bio').value,
-      email:    document.getElementById('p-email').value,
-      github:   document.getElementById('p-github').value,
-      linkedin: document.getElementById('p-linkedin').value,
-      location: document.getElementById('p-location').value,
-    };
-    const res = await fetch('/api/profile', {
-      method: 'PUT', headers: {'Content-Type':'application/json'},
-      body: JSON.stringify(data)
-    });
-    if (res.ok) { showToast('Profile saved!'); setTimeout(() => location.reload(), 1500); }
-    else showToast('Error saving profile');
+  // Toast
+  function showToast(msg){
+    const t=document.getElementById('toast');
+    t.textContent=msg;t.classList.add('show');
+    setTimeout(()=>t.classList.remove('show'),3000);
   }
 
-  // ── Add Project ──
-  async function addProject() {
-    const stack = document.getElementById('proj-stack').value
-      .split(',').map(s => s.trim()).filter(Boolean);
-    const data = {
-      title:       document.getElementById('proj-title').value,
-      description: document.getElementById('proj-desc').value,
-      tech_stack:  stack,
-      github_url:  document.getElementById('proj-github').value,
-      live_url:    document.getElementById('proj-live').value,
-      featured:    document.getElementById('proj-featured').checked,
-    };
-    const res = await fetch('/api/projects', {
-      method: 'POST', headers: {'Content-Type':'application/json'},
-      body: JSON.stringify(data)
+  // Save profile
+  async function saveProfile(){
+    const res=await fetch('/api/profile',{
+      method:'PUT',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        name:document.getElementById('p-name').value,
+        title:document.getElementById('p-title').value,
+        bio:document.getElementById('p-bio').value,
+        email:document.getElementById('p-email').value,
+        github:document.getElementById('p-github').value,
+        linkedin:document.getElementById('p-linkedin').value,
+        location:document.getElementById('p-location').value,
+        photo_url:document.getElementById('p-photo').value,
+      })
     });
-    if (res.ok) { showToast('Project added!'); setTimeout(() => location.reload(), 1500); }
+    if(res.ok){showToast('Profile saved!');setTimeout(()=>location.reload(),1500);}
+    else showToast('Error saving');
+  }
+
+  // Add project
+  async function addProject(){
+    const stack=document.getElementById('proj-stack').value.split(',').map(s=>s.trim()).filter(Boolean);
+    const res=await fetch('/api/projects',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        title:document.getElementById('proj-title').value,
+        description:document.getElementById('proj-desc').value,
+        tech_stack:stack,
+        github_url:document.getElementById('proj-github').value,
+        live_url:document.getElementById('proj-live').value,
+        featured:document.getElementById('proj-featured').checked,
+      })
+    });
+    if(res.ok){showToast('Project added!');setTimeout(()=>location.reload(),1500);}
     else showToast('Error adding project');
   }
 </script>
