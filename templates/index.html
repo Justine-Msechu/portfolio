@@ -447,35 +447,33 @@
     progressLabel.textContent = 'Getting upload URL from AWS...';
 
     try {
-      // Step 1: Ask our Flask backend for a presigned S3 URL
       const urlRes = await fetch('/api/upload-url', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({ file_type: selectedFile.type })
       });
 
-      if (!urlRes.ok) {
-        const err = await urlRes.json();
-        throw new Error(err.error || 'Failed to get upload URL');
-      }
+      let resData;
+      try { resData = await urlRes.json(); }
+      catch(e) { throw new Error('Server error — check Vercel logs for details'); }
 
-      const { upload_url, public_url } = await urlRes.json();
+      if (!urlRes.ok) throw new Error(resData.error || 'Failed to get upload URL');
+
+      const { upload_url, public_url } = resData;
       progressBar.style.width = '50%';
       progressLabel.textContent = 'Uploading photo to AWS S3...';
 
-      // Step 2: Upload the file directly to S3 using the presigned URL
       const uploadRes = await fetch(upload_url, {
         method: 'PUT',
         headers: {'Content-Type': selectedFile.type},
         body: selectedFile
       });
 
-      if (!uploadRes.ok) throw new Error('S3 upload failed');
+      if (!uploadRes.ok) throw new Error('S3 upload rejected — check bucket CORS and policy');
 
       progressBar.style.width = '100%';
       progressLabel.textContent = '✅ Uploaded successfully!';
 
-      // Step 3: Put the S3 URL in the input field and show preview
       document.getElementById('p-photo').value = public_url;
       previewPhoto(public_url);
       status.textContent = '✅ Ready — click Save All Changes';
@@ -483,8 +481,9 @@
 
     } catch (err) {
       progressBar.style.width = '0%';
+      progressLabel.style.color = '#f87171';
       progressLabel.textContent = '❌ ' + err.message;
-      status.textContent = 'Upload failed: ' + err.message;
+      status.textContent = '';
       btn.disabled = false;
       btn.textContent = '☁️ Upload to AWS S3';
     }

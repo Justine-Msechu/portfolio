@@ -182,25 +182,37 @@ def update_profile():
 @app.route("/api/upload-url", methods=["POST"])
 def get_upload_url():
     try:
-        import boto3
-        from botocore.exceptions import ClientError
-    except ImportError:
-        return jsonify({"error": "boto3 not available — check requirements.txt"}), 500
+        # Step 1: check boto3 is available
+        try:
+            import boto3
+            from botocore.exceptions import ClientError
+        except ImportError:
+            return jsonify({"error": "boto3 not installed. Add boto3>=1.28.0 to requirements.txt"}), 500
 
-    aws_key    = os.environ.get("AWS_ACCESS_KEY_ID")
-    aws_secret = os.environ.get("AWS_SECRET_ACCESS_KEY")
-    aws_bucket = os.environ.get("AWS_BUCKET_NAME")
-    aws_region = os.environ.get("AWS_REGION", "us-east-1")
+        # Step 2: check all 4 env vars are present
+        aws_key    = os.environ.get("AWS_ACCESS_KEY_ID", "")
+        aws_secret = os.environ.get("AWS_SECRET_ACCESS_KEY", "")
+        aws_bucket = os.environ.get("AWS_BUCKET_NAME", "")
+        aws_region = os.environ.get("AWS_REGION", "us-east-1")
 
-    if not all([aws_key, aws_secret, aws_bucket]):
-        return jsonify({"error": "AWS credentials not configured"}), 500
+        missing = [k for k, v in {
+            "AWS_ACCESS_KEY_ID": aws_key,
+            "AWS_SECRET_ACCESS_KEY": aws_secret,
+            "AWS_BUCKET_NAME": aws_bucket,
+        }.items() if not v]
 
-    data = request.get_json()
-    file_type = data.get("file_type", "image/jpeg")
-    ext = file_type.split("/")[-1].replace("jpeg", "jpg")
-    file_key = f"profile-photos/{uuid.uuid4()}.{ext}"
+        if missing:
+            return jsonify({
+                "error": f"Missing environment variables in Vercel: {', '.join(missing)}. "
+                         f"Go to Vercel → your project → Settings → Environment Variables and add them."
+            }), 500
 
-    try:
+        # Step 3: generate presigned URL
+        data = request.get_json() or {}
+        file_type = data.get("file_type", "image/jpeg")
+        ext = file_type.split("/")[-1].replace("jpeg", "jpg")
+        file_key = f"profile-photos/{uuid.uuid4()}.{ext}"
+
         s3 = boto3.client(
             "s3",
             region_name=aws_region,
@@ -209,16 +221,14 @@ def get_upload_url():
         )
         presigned = s3.generate_presigned_url(
             "put_object",
-            Params={
-                "Bucket": aws_bucket,
-                "Key": file_key,
-                "ContentType": file_type,
-            },
-            ExpiresIn=300,   # URL valid for 5 minutes
+            Params={"Bucket": aws_bucket, "Key": file_key, "ContentType": file_type},
+            ExpiresIn=300,
         )
         public_url = f"https://{aws_bucket}.s3.{aws_region}.amazonaws.com/{file_key}"
         return jsonify({"upload_url": presigned, "public_url": public_url})
-    except ClientError as e:
+
+    except Exception as e:
+        # Always return JSON — never let Flask return an HTML error page
         return jsonify({"error": str(e)}), 500
 
 
