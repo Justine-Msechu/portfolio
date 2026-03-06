@@ -1,4 +1,4 @@
-# 🚀 Portfolio — Flask + Neon + Vercel
+# Portfolio  Flask + Neon + Vercel
 
 A beautiful, database-powered developer portfolio built with Python Flask, PostgreSQL (Neon), and deployed for **free** on Vercel.
 
@@ -32,7 +32,7 @@ portfolio/
 
 ## 🛠️ Deployment Guide (Step by Step)
 
-### Step 1 — Get a Free Neon Database
+### Step 1 Get a Free Neon Database
 
 1. Go to **https://neon.tech** and sign up (free, no credit card)
 2. Click **"New Project"** → give it a name like `portfolio`
@@ -46,7 +46,7 @@ portfolio/
 
 ---
 
-### Step 2 — Push Code to GitHub
+### Step 2 Push Code to GitHub
 
 1. Create a new repo on **https://github.com** (name it `portfolio`)
 2. In your terminal:
@@ -61,7 +61,7 @@ portfolio/
 
 ---
 
-### Step 3 — Deploy to Vercel
+### Step 3 Deploy to Vercel
 
 1. Go to **https://vercel.com** and sign up with your GitHub account (free)
 2. Click **"Add New Project"**
@@ -70,7 +70,7 @@ portfolio/
    - Click **"Environment Variables"**
    - Name: `DATABASE_URL`
    - Value: *(paste your Neon connection string)*
-5. Click **Deploy** 🎉
+5. Click **Deploy** 
 
 Vercel will automatically build and deploy your app. You'll get a URL like:
 `https://portfolio-yourname.vercel.app`
@@ -95,7 +95,7 @@ python index.py
 
 ---
 
-## ✏️ Customizing Your Portfolio
+## Customizing Your Portfolio
 
 ### Edit Your Profile
 1. Visit your deployed site
