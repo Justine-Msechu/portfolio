@@ -1,7 +1,5 @@
-mport os
+import os
 import uuid
-import boto3
-from botocore.exceptions import ClientError
 from flask import Flask, request, jsonify, render_template
 import psycopg2
 from psycopg2.extras import RealDictCursor
@@ -183,10 +181,12 @@ def update_profile():
 
 @app.route("/api/upload-url", methods=["POST"])
 def get_upload_url():
-    """
-    Returns a presigned S3 URL so the browser can upload
-    a photo directly to S3 without going through Vercel.
-    """
+    try:
+        import boto3
+        from botocore.exceptions import ClientError
+    except ImportError:
+        return jsonify({"error": "boto3 not available — check requirements.txt"}), 500
+
     aws_key    = os.environ.get("AWS_ACCESS_KEY_ID")
     aws_secret = os.environ.get("AWS_SECRET_ACCESS_KEY")
     aws_bucket = os.environ.get("AWS_BUCKET_NAME")
